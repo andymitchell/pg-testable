@@ -17,6 +17,6 @@ describe('DbMultipleTestsRunner', () => {
     test('clean up', async () => {
         await runner.isComplete();
         expect(true).toBe(true);
-    })
+    }, 1000*30)
 
 })

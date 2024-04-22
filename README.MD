@@ -40,7 +40,7 @@ test('clean up', async () => {
     // isComplete resolves after all active tests are finished + a buffer (to prove no other tests want to start)
     await runner.isComplete();
     expect(true).toBe(true);
-})
+}, 1000*60) // Note the long time out... db tests can be slow, and this waits for all of them 
 ```
 
 
@@ -76,6 +76,14 @@ If it detects it's running in the browser, it dynamically loads the Pglite modul
 For some reason, if you try to create/select multiple tables in an interleaved way (e.g. two async functions running together), Pglite fails to recognise the table. 
 
 DbMultipleTestsRunner solves this by queuing each test to run sequentially. 
+
+## My tests time out waiting for DbMultipleTestsRunner.isComplete
+
+isComplete is waiting for 
+- Postgres to set up
+- _all_ your tests to complete 
+
+So make sure your test function has a long timeout. E.g. [Timeout docs for Jest](https://jestjs.io/docs/api#testname-fn-timeout)
 
 # Building 
 
