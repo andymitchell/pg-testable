@@ -2,7 +2,7 @@ import { DbMultipleTestsRunner } from "./DbMultipleTestsRunner";
 
 describe('DbMultipleTestsRunner', () => {
 
-    const runner = new DbMultipleTestsRunner(true, 300, undefined, true);
+    const runner = new DbMultipleTestsRunner(true, 300, undefined, true, true);
 
     async function sleep(ms:number) {
         return new Promise(resolve => {

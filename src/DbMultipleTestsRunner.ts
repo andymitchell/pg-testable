@@ -26,15 +26,23 @@ export class DbMultipleTestsRunner {
         // It's complete when: no more tests have run + a time buffer has passed (a period in which a new test could be started)
         this.promiseComplete = new Promise<void>(accept => {
             const t = setInterval(async () => {
-                if( this.started && this.activeTests.length===0 && this.keepAliveUntilTs<Date.now() ) {
+                const state = {
+                    started: this.started, 
+                    active_tests: this.activeTests.length,
+                    keep_alive_until_ts: this.keepAliveUntilTs,
+                    now: Date.now(),
+                    time_remaining_ms: Date.now()-this.keepAliveUntilTs
+                }
+                if( this.verbose ) console.log(`DbMultipleTestsRunner evaluating...${JSON.stringify(state)}`);
+                if( state.started && state.active_tests===0 && state.time_remaining_ms>0 ) {
                     clearInterval(t);
                     if( disposeOnComplete ) {
-                        if( this.verbose ) console.warn(`Disposing DbMultipleTestsRunner...\nActive tests: ${this.activeTests.length}.\nKeep alive until:${ this.keepAliveUntilTs}\nNow: ${Date.now()}`);
+                        if( this.verbose ) console.warn(`DbMultipleTestsRunner disposing...${JSON.stringify(state)}`);
                         await this.dispose();
                     }
                     accept();
                 }
-            }, 500);
+            }, 1000);
         })
     }
 
@@ -43,12 +51,22 @@ export class DbMultipleTestsRunner {
         this.started = true;
         // pglite seemingly can't cope with creating and selecting multiple tables in an interleaving manner. Or possibly it just wants to run all its creates first (we could do this as a test set up).
         const release = this.lockAliveForTest();
-        return queue('pgtestrunner', async () => {
+        return queue('DbMulitpleTestsRunner.test-run', async () => {
             if( this.disposed) throw new Error(`${tag} Database already disposed. Create a new runner.`);
             this.keepAlive();
-            const result = await callback(this, this.db, this.getUniqueTableName());
-            release();
-            return result;
+            let result:Awaited<T>;
+            try {
+                result = await callback(this, this.db, this.getUniqueTableName());
+                release();
+                return result;
+            } catch(e) {
+                if( e instanceof Error ) {
+                    console.warn("Error in DbMulitpleTestsRunner test callback "+e.message);
+                }
+                release();
+                throw e;
+            }
+            
         })
     }
 
@@ -76,6 +94,7 @@ export class DbMultipleTestsRunner {
 
     private keepAlive() {
         this.keepAliveUntilTs = Date.now()+this.waitForAnotherTestMs;
+        if( this.verbose ) console.log(`DbMultipleTestsRunner keep alive extended until...${this.keepAliveUntilTs}`);
     }
 
     async isComplete() {
