@@ -10,22 +10,26 @@ export class DbMultipleTestsRunner {
     private promiseComplete:Promise<void>;
     private testTableNameIndex: number;
     private disposed:boolean;
+    private started:boolean;
     private waitForAnotherTestMs:number;
-    constructor(real?: boolean, force?: PgTestableDbs, disposeOnComplete = true, waitForAnotherTestMs = 1000*5) {
+    private verbose:boolean;
+    constructor(real?: boolean, waitForAnotherTestMs = 1000*6, force?: PgTestableDbs, disposeOnComplete = true, verbose = false) {
         this.db = PgTestable.newDb(real, force);
         this.activeTests = [];
-        this.keepAliveUntilTs = Date.now();
         this.testTableNameIndex = 0;
         this.disposed = false;
+        this.started = false;
         this.waitForAnotherTestMs = waitForAnotherTestMs;
+        this.keepAliveUntilTs = Date.now() + waitForAnotherTestMs;
+        this.verbose = verbose;
 
         // It's complete when: no more tests have run + a time buffer has passed (a period in which a new test could be started)
         this.promiseComplete = new Promise<void>(accept => {
             const t = setInterval(async () => {
-                if( this.activeTests.length===0 && this.keepAliveUntilTs<Date.now() ) {
+                if( this.started && this.activeTests.length===0 && this.keepAliveUntilTs<Date.now() ) {
                     clearInterval(t);
                     if( disposeOnComplete ) {
-                        console.warn(`Disposing...\nactive tests: ${this.activeTests.length}.\nlast activity:${ this.keepAliveUntilTs}\nnow: ${Date.now()}`);
+                        if( this.verbose ) console.warn(`Disposing DbMultipleTestsRunner...\nActive tests: ${this.activeTests.length}.\nKeep alive until:${ this.keepAliveUntilTs}\nNow: ${Date.now()}`);
                         await this.dispose();
                     }
                     accept();
@@ -36,7 +40,7 @@ export class DbMultipleTestsRunner {
 
 
     async sequentialTest<T>(callback:(runner: DbMultipleTestsRunner, db:PgTestableInstance<any>, uniqueTableName:string) => Promise<T>, tag: string = ''):Promise<T>{
-
+        this.started = true;
         // pglite seemingly can't cope with creating and selecting multiple tables in an interleaving manner. Or possibly it just wants to run all its creates first (we could do this as a test set up).
         const release = this.lockAliveForTest();
         return queue('pgtestrunner', async () => {
@@ -66,6 +70,7 @@ export class DbMultipleTestsRunner {
 
 
     getUniqueTableName() {
+        this.started = true;
         return `test_${this.testTableNameIndex++}_table`;
     }
 

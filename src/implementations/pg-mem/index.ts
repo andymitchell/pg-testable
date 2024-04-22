@@ -30,5 +30,7 @@ export class PgTestableInstancePgMem<T extends Record<string, any>> implements P
         }
     }
 
-    async dispose() {}
+    async dispose() {
+        this.db = newDb();
+    }
 }

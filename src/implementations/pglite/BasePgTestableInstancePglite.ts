@@ -48,7 +48,9 @@ export class BasePgTestableInstancePglite<T extends Record<string, any>> impleme
     async dispose() {
         if( this.db ) {
             console.log(`Pglite db open for ${ft(performance.now()-this.invocation_ts)} milliseconds.\nQueries took:\n${this.queries_ts.map(x => `- ${ft(x)} milliseconds`).join(`\n`)}`);
+            
             await this.db.close();
+            this.db = undefined;
         }
     }
     
