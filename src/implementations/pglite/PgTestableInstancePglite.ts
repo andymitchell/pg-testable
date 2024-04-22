@@ -7,12 +7,11 @@ import { PgTestableInstancePgliteModule } from './PgTestableInstancePgliteModule
 export class PgTestableInstancePglite<T extends Record<string, any>> extends BasePgTestableInstancePglite<T> implements PgTestableInstance<T> {
     NAME = 'PgTestableInstancePglite';
     private environment:PgTestableEnvironment;
-    private verbose: boolean;
+
     
     constructor(environment:PgTestableEnvironment, verbose?:boolean) {
-        super();
+        super(verbose);
         this.environment = environment;
-        this.verbose = verbose;
     }
     
 

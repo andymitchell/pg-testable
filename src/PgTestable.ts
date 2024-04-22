@@ -21,7 +21,7 @@ export class PgTestable {
     }
 
     private static generateNewDb<T extends Record<string, any>>(name: PgTestableDbs, environment:PgTestableEnvironment, verbose?:boolean) {
-        if( verbose ) console.log(`Generating new PgTestableInstance: ${name} in ${environment}`);
+        if( verbose ) console.log(`Generating new PgTestableInstance: ${name} in ${environment}`, Date.now());
         switch(name) {
             case 'pg-mem': {
             return new PgTestableInstancePgMem<T>();

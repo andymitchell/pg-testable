@@ -9,6 +9,10 @@ export class PgTestableInstancePgliteDynamic<T extends Record<string, any>> exte
 
         if( !PgTestableInstancePgliteDynamic.loading ) {
             PgTestableInstancePgliteDynamic.loading = new Promise(async accept => {
+                
+                
+                if( this.verbose ) console.log("PgTestableInstancePgliteDynamic downloading dynamic module to import");
+
                 // @ts-ignore No idea why it hates the url
                 const module = await import('https://cdn.jsdelivr.net/npm/@electric-sql/pglite/dist/index.js');
                 accept(module);

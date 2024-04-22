@@ -6,10 +6,12 @@ export class BasePgTestableInstancePglite<T extends Record<string, any>> impleme
     protected db?:any;
     protected invocation_ts:number;
     protected queries_ts: number[];
+    protected verbose: boolean;
 
-    constructor() {
+    constructor(verbose?: boolean) {
         this.invocation_ts = performance.now();
         this.queries_ts = [];
+        this.verbose = verbose ?? false;
     }
 
     async getDb():Promise<any> {
