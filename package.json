@@ -3,7 +3,23 @@
   "version": "0.1.1",
   "description": "A common interface for multiple Postgres databases that can be used for local testing.",
   "type": "commonjs",
+  "exports": {
+    ".": {
+      "module": "./dist/index.mjs",
+      "require": {
+        "types": "./dist/index.d.ts",
+        "default": "./dist/index.js"
+      },
+      "import": {
+        "types": "./dist/index.d.mts",
+        "default": "./dist/index.mjs"
+      },
+      "types": "./dist/index.d.ts"
+    }
+  },
   "main": "./dist/index.js",
+  "module": "./dist/index.mjs",
+  "types": "./dist/index.d.ts",
   "files": [
     "dist",
     "LICENSE",
