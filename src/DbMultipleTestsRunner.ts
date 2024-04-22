@@ -34,7 +34,7 @@ export class DbMultipleTestsRunner {
                     time_remaining_ms: this.keepAliveUntilTs-Date.now()
                 }
                 if( this.verbose ) console.log(`DbMultipleTestsRunner evaluating...${JSON.stringify(state)}`);
-                if( state.started && state.active_tests===0 && state.time_remaining_ms>0 ) {
+                if( state.started && state.active_tests===0 && state.time_remaining_ms<0 ) {
                     clearInterval(t);
                     if( disposeOnComplete ) {
                         if( this.verbose ) console.warn(`DbMultipleTestsRunner disposing...${JSON.stringify(state)}`);
@@ -48,11 +48,11 @@ export class DbMultipleTestsRunner {
 
 
     async sequentialTest<T>(callback:(runner: DbMultipleTestsRunner, db:PgTestableInstance<any>, uniqueTableName:string) => Promise<T>, tag: string = ''):Promise<T>{
-        this.started = true;
+        this.start();
         // pglite seemingly can't cope with creating and selecting multiple tables in an interleaving manner. Or possibly it just wants to run all its creates first (we could do this as a test set up).
         const release = this.lockAliveForTest();
         return queue('DbMulitpleTestsRunner.test-run', async () => {
-            if( this.disposed) throw new Error(`${tag} Database already disposed. Create a new runner.`);
+            if( this.disposed) throw new Error(`DbMulitpleTestsRunner[${tag}] Database already disposed. Create a new runner.`);
             this.keepAlive();
             let result:Awaited<T>;
             try {
@@ -68,6 +68,13 @@ export class DbMultipleTestsRunner {
             }
             
         })
+    }
+
+    private start() {
+        if( !this.started ) {
+            if( this.verbose ) console.log(`DbMultipleTestsRunner start ${Date.now()}`);
+            this.started = true;
+        }
     }
 
     private async dispose() {
@@ -88,13 +95,16 @@ export class DbMultipleTestsRunner {
 
 
     getUniqueTableName() {
-        this.started = true;
+        this.start();
         return `test_${this.testTableNameIndex++}_table`;
     }
 
     private keepAlive() {
-        this.keepAliveUntilTs = Date.now()+this.waitForAnotherTestMs;
-        if( this.verbose ) console.log(`DbMultipleTestsRunner keep alive extended until...${this.keepAliveUntilTs}`);
+        
+        const newEnd = Date.now()+this.waitForAnotherTestMs;
+        const added = newEnd-this.keepAliveUntilTs;
+        this.keepAliveUntilTs = newEnd;
+        if( this.verbose ) console.log(`DbMultipleTestsRunner keep alive extended until...${this.keepAliveUntilTs} (added ${added}ms)`);
     }
 
     async isComplete() {
