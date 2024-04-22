@@ -1,6 +1,6 @@
 {
   "name": "@andyrmitchell/pg-testable",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "A common interface for multiple Postgres databases that can be used for local testing.",
   "type": "commonjs",
   "main": "./dist/index.js",
