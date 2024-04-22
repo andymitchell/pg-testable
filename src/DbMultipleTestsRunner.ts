@@ -31,7 +31,7 @@ export class DbMultipleTestsRunner {
                     active_tests: this.activeTests.length,
                     keep_alive_until_ts: this.keepAliveUntilTs,
                     now: Date.now(),
-                    time_remaining_ms: Date.now()-this.keepAliveUntilTs
+                    time_remaining_ms: this.keepAliveUntilTs-Date.now()
                 }
                 if( this.verbose ) console.log(`DbMultipleTestsRunner evaluating...${JSON.stringify(state)}`);
                 if( state.started && state.active_tests===0 && state.time_remaining_ms>0 ) {
