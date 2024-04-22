@@ -11,7 +11,7 @@ export class DbMultipleTestsRunner {
     private testTableNameIndex: number;
     private disposed:boolean;
     private waitForAnotherTestMs:number;
-    constructor(real?: boolean, force?: PgTestableDbs, disposeOnComplete = true, waitForAnotherTestMs = 1000*2) {
+    constructor(real?: boolean, force?: PgTestableDbs, disposeOnComplete = true, waitForAnotherTestMs = 1000*5) {
         this.db = PgTestable.newDb(real, force);
         this.activeTests = [];
         this.lastActivityTs = Date.now();
