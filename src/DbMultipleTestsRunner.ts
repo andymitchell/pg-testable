@@ -10,21 +10,21 @@ export class DbMultipleTestsRunner {
     private promiseComplete:Promise<void>;
     private testTableNameIndex: number;
     private disposed:boolean;
-    private timeoutMs:number;
-    constructor(real?: boolean, force?: PgTestableDbs, disposeOnComplete = true, timeoutMs = 1000*5) {
+    private waitForAnotherTestMs:number;
+    constructor(real?: boolean, force?: PgTestableDbs, disposeOnComplete = true, waitForAnotherTestMs = 1000*2) {
         this.db = PgTestable.newDb(real, force);
         this.activeTests = [];
         this.lastActivityTs = Date.now();
         this.testTableNameIndex = 0;
         this.disposed = false;
-        this.timeoutMs = timeoutMs;
+        this.waitForAnotherTestMs = waitForAnotherTestMs;
 
         // It's complete when: no more tests have run + a time buffer has passed (a period in which a new test could be started)
         this.promiseComplete = new Promise<void>(accept => {
-            const t = setInterval(() => {
-                if( this.activeTests.length===0 && this.lastActivityTs<(Date.now()-this.timeoutMs) ) {
+            const t = setInterval(async () => {
+                if( this.activeTests.length===0 && this.lastActivityTs<(Date.now()-this.waitForAnotherTestMs) ) {
                     clearInterval(t);
-                    if( disposeOnComplete ) this.dispose();
+                    if( disposeOnComplete ) await this.dispose();
                     accept();
                 }
             }, 500);
@@ -43,9 +43,9 @@ export class DbMultipleTestsRunner {
         })
     }
 
-    private dispose() {
+    private async dispose() {
         this.disposed = true;
-        this.db.dispose();
+        await this.db.dispose();
     }
 
     private lockAliveForTest() {
