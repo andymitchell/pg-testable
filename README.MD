@@ -6,7 +6,7 @@ Pg-testable is a thin wrapper with a common interface around various locally tes
 
 It also attempts to load optimally in different environments. 
 
-It includes DbMultipleTestsRunner to execute many tests independentally of one another, in just one DB instance (dramatically speeding it up vs. creating a new DB per test). It does this simply by giving each test its own unique table name.
+It includes DbMultipleTestsRunner to execute many _simple_ tests independentally of one another, in just one DB instance (dramatically speeding it up vs. creating a new DB per test). It does this simply by giving each test its own unique table name (which can be used as a unique table prefix if you need many tables).
 
 # Sample usage
 
@@ -20,11 +20,25 @@ const result = await db.query<{pk:string}>('SELECT * FROM t1');
 result.rows[0].pk;
 ```
 
-The test runner: useful as it efficiently reuses the DB across mutiple tests, then automatically cleans up the database when all tests have finished
+The test runner: useful as it efficiently reuses the DB across mutiple tests
 
 
 ```javascript
-const runner = new DbMultipleTestsRunner();
+const runner:DbMultipleTestsRunner;
+
+beforeAll((done) => {
+    // Let it run one query to initiate any lazy parts of the DB, before the tests start rushing it 
+    runner = new DbMultipleTestsRunner();
+    runner.sequentialTest(async (runner, db) => {
+        await db.query("select 'Hello world' as message;");
+        done();
+    });
+})
+
+afterAll(async () => {
+    // Let the DB clean up gracefully
+    await runner.dispose();
+})
 
 test('simple query', async () => {
     const message = await runner.sequentialTest(async (runner, db, uniqueTableName) => {
@@ -36,11 +50,6 @@ test('simple query', async () => {
     expect(message).toBe('Hello world');
 })
 
-test('clean up', async () => {
-    // isComplete resolves after all active tests are finished + a buffer (to prove no other tests want to start)
-    await runner.isComplete();
-    expect(true).toBe(true);
-}, 1000*60) // Note the long time out... db tests can be slow, and this waits for all of them 
 ```
 
 
@@ -68,6 +77,12 @@ test('clean up', async () => {
 ## Drop the need for dynamic loading Pglite in browser (currently needed for [Trowser](https://www.npmjs.com/package/@andyrmitchell/trowser))
 
 If it detects it's running in the browser, it dynamically loads the Pglite module. This can probably change in the future, but it was the only way to get it correctly load paths for the WASM files (Pglite's author has stated the WASM file paths will become optional, at which point it would be wise to point to the CDN for them, or update Trowser to have a special hotfix mode that includes the Postgres wasm files into the temp directory).
+
+# FAQ
+
+## In DbMultipleTestsRunner, why not create a separate schema per test, rather than table name/prefix? 
+
+Because pg-mem requires you to nominate the schema in code, rather than SQL, which would add complexity/brittleness to all external test queries. 
 
 # Troubleshooting
 

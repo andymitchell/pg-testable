@@ -16,6 +16,7 @@ export class PgTestableInstancePgMem<T extends Record<string, any>> implements P
         return await this.runQuery(query, params);
     }
     protected async runQuery(query: string, params?: any[]): Promise<PgTestableInstanceResult<T>> {
+        
         if( params ) {
             params.forEach((param, index) => {
                 const placeholder = new RegExp(`\\$${index + 1}`, 'g');
