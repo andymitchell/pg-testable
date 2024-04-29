@@ -1,6 +1,6 @@
 import { DbMultipleTestsRunner } from "./DbMultipleTestsRunner";
 import { PgTestable } from "./PgTestable";
-import { PgTestableInstance, PgTestableInstanceResult } from "./types";
+import { PgTestableInstance, PgTestableInstanceResult, PgTransactionInstance } from "./types";
 
 export {
     PgTestable,
@@ -9,5 +9,6 @@ export {
 
 export type {
     PgTestableInstance,
-    PgTestableInstanceResult
+    PgTestableInstanceResult,
+    PgTransactionInstance
 }
