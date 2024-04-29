@@ -8,7 +8,12 @@ export class PgTestableInstancePgliteModule<T extends Record<string, any>> exten
 
     async getDb():Promise<any> {
         if( !this.db ) {
-            this.db = new PGlite();
+            const db = new PGlite();
+            this.db = db;
+            
+
+            
+            
         }
         return this.db;
     }

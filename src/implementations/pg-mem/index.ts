@@ -1,5 +1,5 @@
 import { IMemoryDb, newDb } from "pg-mem";
-import { PgTestableInstance, PgTestableInstanceResult } from "../../types";
+import { PgTestableInstance, PgTestableInstanceResult, TransactionCallback } from "../../types";
 
 export class PgTestableInstancePgMem<T extends Record<string, any>> implements PgTestableInstance<T> {
     NAME = 'PgTestableInstancePgMem';
@@ -28,6 +28,15 @@ export class PgTestableInstancePgMem<T extends Record<string, any>> implements P
         const result = this.db.public.query(query);
         return {
             rows: result.rows
+        }
+    }
+
+    async transaction(callback: (transaction:TransactionCallback<T>) => Promise<void>) {
+        const backup = this.db.backup();
+        try {
+            await callback(this);
+        } catch(e) {
+            backup.restore();
         }
     }
 

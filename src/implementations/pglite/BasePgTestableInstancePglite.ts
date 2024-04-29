@@ -1,4 +1,4 @@
-import { PgTestableInstance, PgTestableInstanceResult } from "../../types";
+import { PgTestableInstance, PgTestableInstanceResult, TransactionCallback } from "../../types";
 import { ft } from "../../utils";
 
 export class BasePgTestableInstancePglite<T extends Record<string, any>> implements PgTestableInstance<T> {
@@ -45,6 +45,11 @@ export class BasePgTestableInstancePglite<T extends Record<string, any>> impleme
             throw e;
         }
         
+    }
+
+    async transaction(callback: (transaction:TransactionCallback<T>) => Promise<void>) {
+        const db = await this.getDb();
+        await db.transaction(callback);
     }
 
     async dispose() {

@@ -3,6 +3,7 @@ module.exports = {
     
     preset: 'ts-jest',
     testEnvironment: 'node',
+    rootDir: '.',
     transform: {
         // Use babel-jest to transform JS files
         '^.+\\.(js|jsx)$': 'babel-jest',

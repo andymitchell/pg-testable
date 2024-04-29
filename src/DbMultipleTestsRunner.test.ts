@@ -63,4 +63,16 @@ describe('DbMultipleTestsRunner', () => {
         await runner.isComplete();
     })
 
+    test('simple transaction query', async () => {
+        const message = await runner.sequentialTest(async (runner, db) => {
+            let message:any;
+            await db.transaction(async tx => {
+                const result = await tx.query("select 'Hello world' as message;");
+                message = result.rows[0].message;
+            })
+            return message;
+        })
+
+        expect(message).toBe('Hello world');
+    })
 })
