@@ -45,6 +45,7 @@
   "author": "",
   "license": "MIT",
   "dependencies": {
+    "@andyrmitchell/utils": "^0.3.1",
     "@electric-sql/pglite": "^0.1.5",
     "pg-mem": "^2.8.1"
   },

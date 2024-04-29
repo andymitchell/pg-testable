@@ -1,6 +1,6 @@
 import { PgTestable } from "./PgTestable";
 import { PgTestableDbs, PgTestableInstance } from "./types";
-import queue from "./utils/queue";
+import { QueueWorkspace } from "@andyrmitchell/utils";
 
 // Set up the DB once (it's expensive for pglite), and run each test in its own table
 export class DbMultipleTestsRunner { 
@@ -10,12 +10,14 @@ export class DbMultipleTestsRunner {
     private promiseDisposedTrigger: Function;
     private disposed:boolean;
     private testTableNameIndex: number;
+    private queue:QueueWorkspace;
     
     constructor(real?: boolean, force?: PgTestableDbs, verbose = false) {
         this.db = PgTestable.newDb(real, force, verbose);
         this.activeTests = [];
         this.testTableNameIndex = 0;
         this.disposed = false;
+        this.queue = new QueueWorkspace();
         
 
         this.promiseDisposed = new Promise<boolean>(resolve => {
@@ -27,7 +29,7 @@ export class DbMultipleTestsRunner {
     async sequentialTest<T>(callback:(runner: DbMultipleTestsRunner, db:PgTestableInstance<any>, uniqueTableName:string) => Promise<T>, tag: string = ''):Promise<T>{
         // pglite seemingly can't cope with creating and selecting multiple tables in an interleaving manner. Or possibly it just wants to run all its creates first (we could do this as a test set up).
         const release = this.lockAliveForTest();
-        return queue('DbMulitpleTestsRunner.test-run', async () => {
+        return this.queue.enqueue('DbMulitpleTestsRunner.test-run', async () => {
             if( this.disposed) throw new Error(`DbMulitpleTestsRunner[${tag}] Database already disposed. Create a new runner.`);
             let result:Awaited<T>;
             try {
