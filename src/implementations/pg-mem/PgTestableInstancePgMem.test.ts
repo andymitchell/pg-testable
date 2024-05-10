@@ -21,7 +21,7 @@ describe('PgTestableInstancePglite', () => {
 
     afterAll(async () => {
         await (await dbLoading.promise).dispose();
-    })
+    }, 1000*20);
 
     standardTests(dbLoading);
 

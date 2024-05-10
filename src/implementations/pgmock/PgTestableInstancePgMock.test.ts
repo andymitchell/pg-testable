@@ -20,11 +20,11 @@ describe('PgTestableInstancePgMock', () => {
         // Run the first query, which is always slow.
         await db.query("select 'Hello world' as message;");
         dbLoading.trigger(db);
-    }, 1000*10);
+    }, 1000*20);
 
     afterAll(async () => {
         await (await dbLoading.promise).dispose();
-    })
+    }, 1000*20);
 
     standardTests(dbLoading, {'rls_should_work': true});
 

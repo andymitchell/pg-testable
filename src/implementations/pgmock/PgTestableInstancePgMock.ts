@@ -1,12 +1,13 @@
 /**
  * FYI There's an error in Jest about '0' being undefined. 
- * It was fixed in a pull request by zfben, but not merged, so I hand modified the local node_modules. 
+ * It was fixed in a pull request by zfben, but not merged. 
+ * I've pushed my own fork to npm to use it: @andyrmitchell/pgmock 
  * Discussion: https://github.com/stackframe-projects/pgmock/pull/14 and 
  * The fix I patched into node_modules : https://github.com/zfben/pgmock/commit/30a26e4118cbd97882e1536bd4abfede9e49bd1a
  * 
- * I'm hoping any update to pgmock will fix it (by including the merge); but if you install pgmock afresh before then, you'll need to reapply the patch. 
+ * When it's fixed in the original pgmock, switch back to that 
  */
-import { PostgresMock } from "pgmock";
+import { PostgresMock } from "@andyrmitchell/pgmock";
 import * as pg from "pg";
 import { PgTestableInstance, PgTestableInstanceResult, PgTransactionInstance } from "../../types";
 
