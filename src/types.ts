@@ -1,5 +1,5 @@
 export type PgTestableEnvironment = 'browser' | 'node';
-export type PgTestableDbs = 'pg-mem' | 'pglite';
+export type PgTestableDbs = 'pg-mem' | 'pglite' | 'pgmock';
 
 export type PgTestableInstanceResult<T extends Record<string, any>> = {rows:T[]}
 
@@ -9,5 +9,7 @@ export interface PgTestableInstance<T extends Record<string, any>> {
     exec(query:string):Promise<void>,
     query(query:string, params?: any[]):Promise<PgTestableInstanceResult<T>>,
     transaction: (callback: (transaction:PgTransactionInstance<T>) => Promise<void>) => Promise<void>;
+    
     dispose():Promise<void>
+    supportsRls():boolean;
 }

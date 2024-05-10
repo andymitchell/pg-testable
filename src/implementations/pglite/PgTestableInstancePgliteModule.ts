@@ -7,15 +7,19 @@ export class PgTestableInstancePgliteModule<T extends Record<string, any>> exten
 
 
     async getDb():Promise<any> {
-        if( !this.db ) {
-            const db = new PGlite();
-            this.db = db;
+        if( !this.dbPromise ) {
+            this.dbPromise = new Promise(async accept => {
+                const db = new PGlite();
+                accept(db);
+            });
+            
+            
             
 
             
             
         }
-        return this.db;
+        return this.dbPromise;
     }
 
 }

@@ -3,7 +3,7 @@ import { ft } from "../../utils";
 
 export class BasePgTestableInstancePglite<T extends Record<string, any>> implements PgTestableInstance<T> {
     NAME = 'BasePgTestableInstancePglite';
-    protected db?:any;
+    protected dbPromise?:any;
     protected invocation_ts:number;
     protected queries_ts: number[];
     protected verbose: boolean;
@@ -53,12 +53,14 @@ export class BasePgTestableInstancePglite<T extends Record<string, any>> impleme
     }
 
     async dispose() {
-        if( this.db ) {
+        if( this.dbPromise ) {
             console.log(`Pglite db open for ${ft(performance.now()-this.invocation_ts)} milliseconds.\nQueries took:\n${this.queries_ts.map(x => `- ${ft(x)} milliseconds`).join(`\n`)}`);
-            
-            await this.db.close();
-            this.db = undefined;
+            const db = await this.dbPromise;
+            await db.close();
+            this.dbPromise = undefined;
         }
     }
-    
+
+    supportsRls() { return false }
+
 }

@@ -1,6 +1,10 @@
 import { PgTestableInstance } from '../../types';
 import { BasePgTestableInstancePglite } from './BasePgTestableInstancePglite';
 
+/**
+ * This exists to be able to run PgLite in the browser. 
+ */
+
 export class PgTestableInstancePgliteDynamic<T extends Record<string, any>> extends BasePgTestableInstancePglite<T> implements PgTestableInstance<T> {
     NAME = 'PgTestableInstancePgliteDynamic';
     static loading:Promise<any>;
@@ -21,11 +25,15 @@ export class PgTestableInstancePgliteDynamic<T extends Record<string, any>> exte
     }
 
     async getDb():Promise<any> {
-        if( !this.db ) {
-            const module = await PgTestableInstancePgliteDynamic.loading;
-            this.db = new module.PGlite();
+        if( !this.dbPromise ) {
+            this.dbPromise = new Promise(async accept => {
+                const module = await PgTestableInstancePgliteDynamic.loading;
+                const db = new module.PGlite();
+                accept(db);
+            })
+            
         }
-        return this.db;
+        return this.dbPromise;
     }
 
 }

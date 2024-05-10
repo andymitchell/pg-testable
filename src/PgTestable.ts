@@ -1,5 +1,6 @@
 import { PgTestableInstancePgMem } from "./implementations/pg-mem";
 import { PgTestableInstancePglite } from "./implementations/pglite";
+import { PgTestableInstancePgMock } from "./implementations/pgmock";
 import { PgTestableDbs, PgTestableEnvironment, PgTestableInstance } from "./types";
 
 export class PgTestable {
@@ -24,10 +25,14 @@ export class PgTestable {
         if( verbose ) console.log(`Generating new PgTestableInstance: ${name} in ${environment}`, Date.now());
         switch(name) {
             case 'pg-mem': {
-            return new PgTestableInstancePgMem<T>();
+                return new PgTestableInstancePgMem<T>();
             }
             case 'pglite': {
                 return new PgTestableInstancePglite<T>(environment, verbose);
+            }
+            case 'pgmock': {
+                if( environment==='browser' ) throw new Error("Not supported. The documentation says it's possible, but recommends pg-lite. https://github.com/stackframe-projects/pgmock")
+                return new PgTestableInstancePgMock<T>();
             }
         }
     }
