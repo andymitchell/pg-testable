@@ -76,10 +76,6 @@ export class DbMultipleTestsRunner {
     }
 
 
-    getUniqueTableName() {
-        return `test_${this.testTableNameIndex++}_table`;
-    }
-
 
     async isComplete() {
         return await this.promiseDisposed;
