@@ -1,6 +1,6 @@
 import { PostgresHelpers } from "@andyrmitchell/utils";
-import { PgTestable } from "./PgTestable";
-import { PgTestableDbs, PgTestableEnvironment, PgTestableInstance, PgTestableInstanceResult, PgTestableOptions, PgTestableOptionsPgClient, PgTestableVirtualInstance, PgTransactionInstance } from "./types";
+
+import {  PgTestableInstance, PgTestableInstanceResult, PgTestableVirtualInstance, PgTransactionInstance } from "./types";
 import { v4 as uuidv4 } from "uuid";
 
 export function generateUniqueSchema(): string {
@@ -38,13 +38,13 @@ export class PgTestableVirtual implements PgTestableVirtualInstance {
 
     async exec(query: string): Promise<void> {
         await this.onceLoaded();
-        if( query.indexOf(this.schema)===-1 ) console.warn(`The query is not schema scoped - it's still the client's responsibility to do so. Query: ${query}`);
+        if( query.indexOf(this.schema)===-1 ) console.warn(`The query is not schema scoped to ${this.schema}. It's the client's responsibility to do so. Query: ${query}`);
         await this.db.exec(query);
     }
 
     async query<T extends Record<string, any> = Record<string, any>>(query: string, params?: any[] | undefined): Promise<PgTestableInstanceResult<T>> {
         await this.onceLoaded();
-        if( query.indexOf(this.schema)===-1 ) console.warn(`The query is not schema scoped - it's still the client's responsibility to do so. Query: ${query}`);
+        if( query.indexOf(this.schema)===-1 ) console.warn(`The query is not schema scoped to ${this.schema}. It's the client's responsibility to do so. Query: ${query}`);
         return await this.db.query(query, params);
     }
 

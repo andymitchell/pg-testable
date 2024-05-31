@@ -92,4 +92,6 @@ export class PgTestableInstancePgMock implements PgTestableInstance {
 
     supportsRls() { return true }
 
+    getNodePostgresConfig() { return this.mock!.getNodePostgresConfig() }
+
 }

@@ -1,3 +1,5 @@
+import { ClientConfig } from "pg";
+
 export type PgTestableEnvironment = 'browser' | 'node';
 export type PgTestableDbs = 'pg-mem' | 'pglite' | 'pgmock' | 'any-real' | 'pg-client';
 
@@ -19,5 +21,4 @@ export interface PgTestableVirtualInstance extends PgTestableInstance {
     schemaScope(identifier:string):string;
 }
 
-export type PgTestableOptionsPgClient = {};
-export type PgTestableOptions = PgTestableOptionsPgClient;
+export type PgTestableOptionsPgClient = string | ClientConfig | undefined;

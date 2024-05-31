@@ -1,7 +1,8 @@
+import { PgTestableInstancePgClient } from "./implementations/pg-client";
 import { PgTestableInstancePgMem } from "./implementations/pg-mem";
 import { PgTestableInstancePglite } from "./implementations/pglite";
 import { PgTestableInstancePgMock } from "./implementations/pgmock";
-import { PgTestableDbs, PgTestableEnvironment, PgTestableInstance, PgTestableInstanceResult, PgTestableOptions, PgTestableOptionsPgClient, PgTransactionInstance } from "./types";
+import { PgTestableDbs, PgTestableEnvironment, PgTestableInstance, PgTestableInstanceResult, PgTestableOptionsPgClient, PgTransactionInstance } from "./types";
 
 
 
@@ -34,7 +35,7 @@ export class PgTestable implements PgTestableInstance {
     protected client:PgTestableInstance;
     
     constructor(type:'pg-client', options:PgTestableOptionsPgClient, verbose?:boolean);
-    constructor(type:PgTestableDbs, options?:PgTestableOptions, verbose?:boolean);
+    constructor(type:Omit<PgTestableDbs, 'pg-client'>, options?:undefined, verbose?:boolean);
     constructor(type:unknown, options?:unknown, verbose?:boolean) {
         const environment:PgTestableEnvironment = typeof window!=='undefined'? 'browser' : 'node';
 
@@ -52,7 +53,11 @@ export class PgTestable implements PgTestableInstance {
             case 'pgmock': {
                 if( environment==='browser' ) throw new Error("Not supported. The documentation says it's possible, but recommends pg-lite. https://github.com/stackframe-projects/pgmock")
                 this.client = new PgTestableInstancePgMock();
-            break;
+                break;
+            }
+            case 'pg-client': {
+                this.client = new PgTestableInstancePgClient(options as PgTestableOptionsPgClient);
+                break;
             }
             default: {
                 throw new Error("Unknown PgTestable type");
