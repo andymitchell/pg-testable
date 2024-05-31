@@ -8,7 +8,7 @@ export function standardTests(dbLoading:PromiseWithTrigger<PgTestableInstance>, 
         const db = await dbLoading.promise;
         const result = await db.query("select 'Hello world' as message;");
         
-        expect(result.rows[0].message).toBe('Hello world');
+        expect(result.rows[0]!.message).toBe('Hello world');
     })
 
 
@@ -18,7 +18,7 @@ export function standardTests(dbLoading:PromiseWithTrigger<PgTestableInstance>, 
         let message:any;
         await db.transaction(async tx => {
             const result = await tx.query("select 'Hello world' as message;");
-            message = result.rows[0].message;
+            message = result.rows[0]!.message;
         })
         
         expect(message).toBe('Hello world');

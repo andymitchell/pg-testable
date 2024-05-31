@@ -29,7 +29,7 @@ describe('DbMultipleTestsRunner', () => {
         const message = await runner.sequentialTest(async (runner, db) => {
             const result = await db.query("select 'Hello world' as message;");
         
-            return result.rows[0].message;
+            return result.rows[0]!.message;
         })
 
         expect(message).toBe('Hello world');
@@ -39,7 +39,7 @@ describe('DbMultipleTestsRunner', () => {
         const message = await runner.sequentialTest(async (runner, db) => {
             const result = await db.query("select 'Hello world' as message;");
             await sleep(200);
-            return result.rows[0].message;
+            return result.rows[0]!.message;
         });
         expect(message).toBe('Hello world');
     }
@@ -70,7 +70,7 @@ describe('DbMultipleTestsRunner', () => {
             let message:any;
             await db.transaction(async tx => {
                 const result = await tx.query("select 'Hello world' as message;");
-                message = result.rows[0].message;
+                message = result.rows[0]!.message;
             })
             return message;
         })

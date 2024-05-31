@@ -9,7 +9,7 @@ export type PgTransactionInstance = Pick<PgTestableInstance, 'exec' | 'query'>;
 export interface PgTestableInstance {
     NAME:Readonly<string>;
     exec(query:string):Promise<void>,
-    query<T extends Record<string, any>>(query:string, params?: any[]):Promise<PgTestableInstanceResult<T>>,
+    query<T extends Record<string, any> = Record<string, any>>(query:string, params?: any[]):Promise<PgTestableInstanceResult<T>>,
     transaction: (callback: (transaction:PgTransactionInstance) => Promise<void>) => Promise<void>;
     
     dispose():Promise<void>

@@ -5,7 +5,7 @@ import { PgTestableInstancePgliteDynamic } from './PgTestableInstancePgliteDynam
 import { PgTestableInstancePgliteModule } from './PgTestableInstancePgliteModule';
 
 export class PgTestableInstancePglite<T extends Record<string, any>> extends BasePgTestableInstancePglite<T> implements PgTestableInstance {
-    NAME = 'PgTestableInstancePglite';
+    override NAME = 'PgTestableInstancePglite';
     private environment:PgTestableEnvironment;
     
     
@@ -17,7 +17,7 @@ export class PgTestableInstancePglite<T extends Record<string, any>> extends Bas
     }
     
 
-    async getDb():Promise<any> {
+    override async getDb():Promise<any> {
         if( !this.dbPromise ) {
             this.dbPromise = new Promise(async accept => {
                 let db:any;

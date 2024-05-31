@@ -6,7 +6,7 @@ import { BasePgTestableInstancePglite } from './BasePgTestableInstancePglite';
  */
 
 export class PgTestableInstancePgliteDynamic<T extends Record<string, any>> extends BasePgTestableInstancePglite<T> implements PgTestableInstance {
-    NAME = 'PgTestableInstancePgliteDynamic';
+    override NAME = 'PgTestableInstancePgliteDynamic';
     static loading:Promise<any>;
     constructor() {
         super();
@@ -24,7 +24,7 @@ export class PgTestableInstancePgliteDynamic<T extends Record<string, any>> exte
         }
     }
 
-    async getDb():Promise<any> {
+    override async getDb():Promise<any> {
         if( !this.dbPromise ) {
             this.dbPromise = new Promise(async accept => {
                 const module = await PgTestableInstancePgliteDynamic.loading;
