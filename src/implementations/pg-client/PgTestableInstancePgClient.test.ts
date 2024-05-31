@@ -3,6 +3,7 @@ import { PgTestableInstancePgClient } from ".";
 import { standardTests } from "../../StandardTests"
 import { PgTestableInstance } from "../../types";
 import { PgTestableInstancePgMock } from "../pgmock";
+import { PgTestable } from "../../PgTestable";
 
 describe('PgTestableInstancePgClient', () => {
 
@@ -16,7 +17,8 @@ describe('PgTestableInstancePgClient', () => {
         // Run query to make sure it sets up ok
         await mock.query("select 'Hello world' as message;");
 
-        const db = new PgTestableInstancePgClient(mock.getNodePostgresConfig());
+        //const db = new PgTestableInstancePgClient(mock.getNodePostgresConfig());
+        const db = new PgTestable({type: 'pg-client', config: mock.getNodePostgresConfig()})
         
         // Run the first query, which is always slow.
         await db.query("select 'Hello world' as message;");

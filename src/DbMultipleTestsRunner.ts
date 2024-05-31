@@ -1,6 +1,6 @@
 import { PgTestable } from "./PgTestable";
 import { PgTestableVirtual } from "./PgTestableVirtual";
-import { PgTestableDbs, PgTestableInstance, PgTestableOptionsPgClient } from "./types";
+import { PgTestableDbDefinitions, PgTestableInstance, PgTestableOptionsPgClient } from "./types";
 import { QueueWorkspace } from "@andyrmitchell/utils";
 
 // Set up the DB once (it's expensive for pglite), and run each test in its own table
@@ -13,10 +13,8 @@ export class DbMultipleTestsRunner {
     private testTableNameIndex: number;
     private queue:QueueWorkspace;
     
-    constructor(type:'pg-client', options:PgTestableOptionsPgClient, verbose?:boolean);
-    constructor(type:Omit<PgTestableDbs, 'pg-client'>, options?:undefined, verbose?:boolean);
-    constructor(type:unknown, options?:unknown, verbose?:boolean) {
-        this.db = new PgTestable(type as Omit<PgTestableDbs, 'pg-client'>, options as undefined, verbose);
+    constructor(definition:PgTestableDbDefinitions, verbose?:boolean) {
+        this.db = new PgTestable(definition, verbose);
         this.activeTests = [];
         this.testTableNameIndex = 0;
         this.disposed = false;

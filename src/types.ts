@@ -1,7 +1,17 @@
 import { ClientConfig } from "pg";
 
 export type PgTestableEnvironment = 'browser' | 'node';
-export type PgTestableDbs = 'pg-mem' | 'pglite' | 'pgmock' | 'any-real' | 'pg-client';
+
+
+export type PgTestableOptionsPgClient = string | ClientConfig | undefined;
+export type PgTestableDbDefinitions = {type: 'pg-mem'}
+    | {type: 'pglite'}
+    | {type: 'pgmock'}
+    | {type: 'any-real', config?: PgTestableOptionsPgClient}
+    | {type: 'pg-client', config: PgTestableOptionsPgClient}
+
+
+//export type PgTestableDbDefinitionTypes = PgTestableDbDefinitions['type'];x
 
 export type PgTestableInstanceResult<T extends Record<string, any>> = {rows:T[]}
 
@@ -21,4 +31,4 @@ export interface PgTestableVirtualInstance extends PgTestableInstance {
     schemaScope(identifier:string):string;
 }
 
-export type PgTestableOptionsPgClient = string | ClientConfig | undefined;
+

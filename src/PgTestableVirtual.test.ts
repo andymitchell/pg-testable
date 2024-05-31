@@ -4,7 +4,7 @@ import { PgTestableVirtual } from "./PgTestableVirtual";
 describe('PgTestableVirtual', () => {
 
     test('schema creates', async () => {
-        const provider = new PgTestable('pglite');
+        const provider = new PgTestable({type: 'pglite'});
         const db = new PgTestableVirtual(provider);
 
         const result = await db.query(`SELECT * FROM information_schema.schemata WHERE schema_name = $1`, [db.getSchema()]);
@@ -15,7 +15,7 @@ describe('PgTestableVirtual', () => {
     });
 
     test('schema disposes', async () => {
-        const provider = new PgTestable('pglite');
+        const provider = new PgTestable({type: 'pglite'});
         const db = new PgTestableVirtual(provider);
 
         await db.dispose();
@@ -28,7 +28,7 @@ describe('PgTestableVirtual', () => {
     });
 
     test('no collision', async () => {
-        const provider = new PgTestable('pglite');
+        const provider = new PgTestable({type: 'pglite'});
         const db1 = new PgTestableVirtual(provider);
         const db2 = new PgTestableVirtual(provider);
 

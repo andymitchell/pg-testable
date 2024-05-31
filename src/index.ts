@@ -1,7 +1,7 @@
 import { DbMultipleTestsRunner } from "./DbMultipleTestsRunner";
 import { PgTestable } from "./PgTestable";
 import { PgTestableVirtual } from "./PgTestableVirtual";
-import { PgTestableDbs, PgTestableInstance, PgTestableInstanceResult, PgTransactionInstance } from "./types";
+import { PgTestableDbDefinitions, PgTestableInstance, PgTestableInstanceResult, PgTransactionInstance } from "./types";
 
 export {
     PgTestable,
@@ -13,5 +13,5 @@ export type {
     PgTestableInstance,
     PgTestableInstanceResult,
     PgTransactionInstance,
-    PgTestableDbs
+    PgTestableDbDefinitions
 }
