@@ -1,40 +1,82 @@
 import { PgTestableInstancePgMem } from "./implementations/pg-mem";
 import { PgTestableInstancePglite } from "./implementations/pglite";
 import { PgTestableInstancePgMock } from "./implementations/pgmock";
-import { PgTestableDbs, PgTestableEnvironment, PgTestableInstance } from "./types";
+import { PgTestableDbs, PgTestableEnvironment, PgTestableInstance, PgTestableInstanceResult, PgTestableOptions, PgTestableOptionsPgClient, PgTransactionInstance } from "./types";
 
-export class PgTestable {
-    // TODO For pglite/pgmock, it might be more performant to open one db, and run an "instance" as a transaction
-    // Or, to create one DB, but run the tests with different table names 
 
-    static newDb<T extends Record<string, any>>(real: boolean = true, force?: PgTestableDbs, verbose?: boolean):PgTestableInstance<T> {
+
+export class PgTestable implements PgTestableInstance {
+    
+    /**
+     * DEPRECATED
+     * 
+     * @param real 
+     * @param force 
+     * @param verbose 
+     * @returns 
+     */
+    static newDb(real: boolean = true, force?: PgTestableDbs, verbose?: boolean):PgTestableInstance {
         const environment:PgTestableEnvironment = typeof window!=='undefined'? 'browser' : 'node';
         if( force ) {
             if( real && force==='pg-mem' ) console.warn("You've forced pg-mem but requested real mode, which pg-mem isn't. Forcing takes priority: pg-mem will be used.")
-            return PgTestable.generateNewDb<T>(force, environment, verbose);
+            return new PgTestable(force, undefined, verbose);
         } else {
             if( real ) {
-                return PgTestable.generateNewDb<T>('pglite', environment, verbose);
+                return new PgTestable('any-real', undefined, verbose);
             } else {
-                return PgTestable.generateNewDb<T>('pg-mem', environment, verbose);
+                return new PgTestable('pg-mem', undefined, verbose);
             }
         }
     }
 
-    private static generateNewDb<T extends Record<string, any>>(name: PgTestableDbs, environment:PgTestableEnvironment, verbose?:boolean) {
-        if( verbose ) console.log(`Generating new PgTestableInstance: ${name} in ${environment}`, Date.now());
-        switch(name) {
+
+    NAME:string;
+    private client:PgTestableInstance;
+    
+    constructor(type:'pg-client', options:PgTestableOptionsPgClient, verbose?:boolean);
+    constructor(type:PgTestableDbs, options?:PgTestableOptions, verbose?:boolean);
+    constructor(type:unknown, options?:unknown, verbose?:boolean) {
+        const environment:PgTestableEnvironment = typeof window!=='undefined'? 'browser' : 'node';
+
+        if( type==='any-real' ) type = 'pglite';
+
+        switch(type) {
             case 'pg-mem': {
-                return new PgTestableInstancePgMem<T>();
+                this.client = new PgTestableInstancePgMem();
+                break;
             }
             case 'pglite': {
-                return new PgTestableInstancePglite<T>(environment, verbose);
+                this.client = new PgTestableInstancePglite(environment, verbose);
+                break;
             }
             case 'pgmock': {
                 if( environment==='browser' ) throw new Error("Not supported. The documentation says it's possible, but recommends pg-lite. https://github.com/stackframe-projects/pgmock")
-                return new PgTestableInstancePgMock<T>();
+                this.client = new PgTestableInstancePgMock();
+            break;
+            }
+            default: {
+                throw new Error("Unknown PgTestable type");
             }
         }
+
+        this.NAME = this.client.NAME;
+    }
+
+    
+    async exec(query: string): Promise<void> {
+        await this.client.exec(query);
+    }
+    async query<T extends Record<string, any> = Record<string, any>>(query: string, params?: any[]): Promise<PgTestableInstanceResult<T>> {
+        return await this.client.query(query, params);
+    }
+    async transaction(callback: (transaction: PgTransactionInstance) => Promise<void>):Promise<void> {
+        await this.client.transaction(callback);
+    }
+    async dispose(): Promise<void> {
+        await this.client.dispose();
+    }
+    supportsRls(): boolean {
+        return this.client.supportsRls();
     }
 
     

@@ -10,7 +10,7 @@ import { PgTestableInstance } from "../../types";
 describe('PgTestableInstancePgMock', () => {
 
     
-    let dbLoading:PromiseWithTrigger = promiseWithTrigger<PgTestableInstance<any>>();
+    let dbLoading:PromiseWithTrigger = promiseWithTrigger<PgTestableInstance>();
     
     beforeAll(async () => {
         const st = Date.now();

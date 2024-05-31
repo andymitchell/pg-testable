@@ -1,7 +1,7 @@
 import { PgTestableInstance, PgTestableInstanceResult, PgTransactionInstance } from "../../types";
 import { ft } from "../../utils";
 
-export class BasePgTestableInstancePglite<T extends Record<string, any>> implements PgTestableInstance<T> {
+export class BasePgTestableInstancePglite<T extends Record<string, any>> implements PgTestableInstance {
     NAME = 'BasePgTestableInstancePglite';
     protected dbPromise?:any;
     protected invocation_ts:number;
@@ -31,7 +31,7 @@ export class BasePgTestableInstancePglite<T extends Record<string, any>> impleme
         }
         this.queries_ts.push(performance.now()-st);
     }
-    async query(query: string, params?: any[]): Promise<PgTestableInstanceResult<T>> {
+    async query<T extends Record<string, any> = Record<string, any>>(query: string, params?: any[]): Promise<PgTestableInstanceResult<T>> {
         const db = await this.getDb();
         const st = performance.now();
         try {
@@ -47,7 +47,7 @@ export class BasePgTestableInstancePglite<T extends Record<string, any>> impleme
         
     }
 
-    async transaction(callback: (transaction:PgTransactionInstance<T>) => Promise<void>) {
+    async transaction(callback: (transaction:PgTransactionInstance) => Promise<void>) {
         const db = await this.getDb();
         await db.transaction(callback);
     }

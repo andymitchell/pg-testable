@@ -3,7 +3,7 @@ import { PromiseWithTrigger } from "@andyrmitchell/utils";
 import { PgTestableInstance } from "./types";
 
 
-export function standardTests(dbLoading:PromiseWithTrigger<PgTestableInstance<any>>, options?: {rls_should_work?:boolean}) {
+export function standardTests(dbLoading:PromiseWithTrigger<PgTestableInstance>, options?: {rls_should_work?:boolean}) {
     test('simple query', async () => {
         const db = await dbLoading.promise;
         const result = await db.query("select 'Hello world' as message;");

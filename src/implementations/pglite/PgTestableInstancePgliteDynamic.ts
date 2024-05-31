@@ -5,7 +5,7 @@ import { BasePgTestableInstancePglite } from './BasePgTestableInstancePglite';
  * This exists to be able to run PgLite in the browser. 
  */
 
-export class PgTestableInstancePgliteDynamic<T extends Record<string, any>> extends BasePgTestableInstancePglite<T> implements PgTestableInstance<T> {
+export class PgTestableInstancePgliteDynamic<T extends Record<string, any>> extends BasePgTestableInstancePglite<T> implements PgTestableInstance {
     NAME = 'PgTestableInstancePgliteDynamic';
     static loading:Promise<any>;
     constructor() {

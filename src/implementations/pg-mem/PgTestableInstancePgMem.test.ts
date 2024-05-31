@@ -7,7 +7,7 @@ import { PgTestableInstance } from "../../types";
 describe('PgTestableInstancePglite', () => {
 
     
-    let dbLoading:PromiseWithTrigger<PgTestableInstance<any>> = promiseWithTrigger<PgTestableInstance<any>>();
+    let dbLoading:PromiseWithTrigger<PgTestableInstance> = promiseWithTrigger<PgTestableInstance>();
     
     beforeAll(async () => {
         const st = Date.now();

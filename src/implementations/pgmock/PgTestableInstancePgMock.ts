@@ -1,17 +1,9 @@
-/**
- * FYI There's an error in Jest about '0' being undefined. 
- * It was fixed in a pull request by zfben, but not merged. 
- * I've pushed my own fork to npm to use it: @andyrmitchell/pgmock 
- * Discussion: https://github.com/stackframe-projects/pgmock/pull/14 and 
- * The fix I patched into node_modules : https://github.com/zfben/pgmock/commit/30a26e4118cbd97882e1536bd4abfede9e49bd1a
- * 
- * When it's fixed in the original pgmock, switch back to that 
- */
-import { PostgresMock } from "@andyrmitchell/pgmock";
+
+import { PostgresMock } from "pgmock";
 import * as pg from "pg";
 import { PgTestableInstance, PgTestableInstanceResult, PgTransactionInstance } from "../../types";
 
-export class PgTestableInstancePgMock<T extends Record<string, any>> implements PgTestableInstance<T> {
+export class PgTestableInstancePgMock implements PgTestableInstance {
     NAME = 'PgTestableInstancePgMock';
     private mock:PostgresMock;
     private db:pg.Client;
@@ -49,10 +41,10 @@ export class PgTestableInstancePgMock<T extends Record<string, any>> implements 
     async exec(query: string): Promise<void> {
         await this.runQuery(query);
     }
-    async query(query: string, params?: any[]): Promise<PgTestableInstanceResult<T>> {
-        return await this.runQuery(query, params);
+    async query<T extends Record<string, any> = Record<string, any>>(query: string, params?: any[]): Promise<PgTestableInstanceResult<T>> {
+        return await this.runQuery<T>(query, params);
     }
-    protected async runQuery(query: string, params?: any[]): Promise<PgTestableInstanceResult<T>> {
+    protected async runQuery<T extends Record<string, any>>(query: string, params?: any[]): Promise<PgTestableInstanceResult<T>> {
         const db = await this.getDb();
         const st = Date.now();
         const result = await db.query(query, params);
@@ -62,10 +54,10 @@ export class PgTestableInstancePgMock<T extends Record<string, any>> implements 
         }
     }
 
-    async transaction(callback: (transaction:PgTransactionInstance<T>) => Promise<void>) {
+    async transaction(callback: (transaction:PgTransactionInstance) => Promise<void>) {
         const db = new pg.Client(this.mock.getNodePostgresConfig());
         db.connect();
-        const transactionInstance = new PgTestableInstancePgMock<T>({mock: this.mock, db});
+        const transactionInstance = new PgTestableInstancePgMock({mock: this.mock, db});
         
         await transactionInstance.query('BEGIN');
         try {

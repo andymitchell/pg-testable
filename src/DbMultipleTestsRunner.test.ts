@@ -5,7 +5,7 @@ describe('DbMultipleTestsRunner', () => {
     let runner:DbMultipleTestsRunner;
     
     beforeAll((done) => {
-        runner = new DbMultipleTestsRunner();
+        runner = new DbMultipleTestsRunner('any-real');
         runner.sequentialTest(async (runner, db) => {
             await db.query("select 'Hello world' as message;");
             done();
@@ -52,7 +52,7 @@ describe('DbMultipleTestsRunner', () => {
     })
 
     test(`stays alive until dispose called`, async () => {
-        const runner = new DbMultipleTestsRunner();
+        const runner = new DbMultipleTestsRunner('any-real');
 
         
         setTimeout(async () => {

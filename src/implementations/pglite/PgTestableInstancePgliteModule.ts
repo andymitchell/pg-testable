@@ -2,7 +2,7 @@ import { PgTestableInstance } from '../../types';
 import { BasePgTestableInstancePglite } from './BasePgTestableInstancePglite';
 import { PGlite } from "@electric-sql/pglite";
 
-export class PgTestableInstancePgliteModule<T extends Record<string, any>> extends BasePgTestableInstancePglite<T> implements PgTestableInstance<T> {
+export class PgTestableInstancePgliteModule<T extends Record<string, any>> extends BasePgTestableInstancePglite<T> implements PgTestableInstance {
     NAME = 'PgTestableInstancePgliteModule';
 
 

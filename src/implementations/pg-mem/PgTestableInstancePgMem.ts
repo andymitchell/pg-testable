@@ -1,7 +1,7 @@
 import { IMemoryDb, newDb } from "pg-mem";
 import { PgTestableInstance, PgTestableInstanceResult, PgTransactionInstance } from "../../types";
 
-export class PgTestableInstancePgMem<T extends Record<string, any>> implements PgTestableInstance<T> {
+export class PgTestableInstancePgMem<T extends Record<string, any>> implements PgTestableInstance {
     NAME = 'PgTestableInstancePgMem';
     private db:IMemoryDb;
     
@@ -12,10 +12,10 @@ export class PgTestableInstancePgMem<T extends Record<string, any>> implements P
     async exec(query: string): Promise<void> {
         await this.runQuery(query);
     }
-    async query(query: string, params?: any[]): Promise<PgTestableInstanceResult<T>> {
-        return await this.runQuery(query, params);
+    async query<T extends Record<string, any> = Record<string, any>>(query: string, params?: any[]): Promise<PgTestableInstanceResult<T>> {
+        return await this.runQuery<T>(query, params);
     }
-    protected async runQuery(query: string, params?: any[]): Promise<PgTestableInstanceResult<T>> {
+    protected async runQuery<T extends Record<string, any> = Record<string, any>>(query: string, params?: any[]): Promise<PgTestableInstanceResult<T>> {
         
         if( params ) {
             params.forEach((param, index) => {
@@ -31,7 +31,7 @@ export class PgTestableInstancePgMem<T extends Record<string, any>> implements P
         }
     }
 
-    async transaction(callback: (transaction:PgTransactionInstance<T>) => Promise<void>) {
+    async transaction(callback: (transaction:PgTransactionInstance) => Promise<void>) {
         const backup = this.db.backup();
         try {
             await callback(this);

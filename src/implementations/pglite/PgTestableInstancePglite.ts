@@ -4,7 +4,7 @@ import { BasePgTestableInstancePglite } from './BasePgTestableInstancePglite';
 import { PgTestableInstancePgliteDynamic } from './PgTestableInstancePgliteDynamic';
 import { PgTestableInstancePgliteModule } from './PgTestableInstancePgliteModule';
 
-export class PgTestableInstancePglite<T extends Record<string, any>> extends BasePgTestableInstancePglite<T> implements PgTestableInstance<T> {
+export class PgTestableInstancePglite<T extends Record<string, any>> extends BasePgTestableInstancePglite<T> implements PgTestableInstance {
     NAME = 'PgTestableInstancePglite';
     private environment:PgTestableEnvironment;
     
