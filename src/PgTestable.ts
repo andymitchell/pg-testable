@@ -31,7 +31,7 @@ export class PgTestable implements PgTestableInstance {
 
 
     NAME:string;
-    private client:PgTestableInstance;
+    protected client:PgTestableInstance;
     
     constructor(type:'pg-client', options:PgTestableOptionsPgClient, verbose?:boolean);
     constructor(type:PgTestableDbs, options?:PgTestableOptions, verbose?:boolean);

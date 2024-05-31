@@ -1,6 +1,9 @@
 {
     "compilerOptions": {
         "moduleResolution": "node",
+        "strict": true,
+        //"noUncheckedIndexedAccess": true,
+        //"noImplicitOverride": true,
         "lib": [
             "ESNext",
             "DOM"

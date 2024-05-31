@@ -44,12 +44,14 @@ describe('DbMultipleTestsRunner', () => {
         expect(message).toBe('Hello world');
     }
 
-    test('run across multiple test 1', async () => {
-        await runSlow();
+    test('run across multiple test', async () => {
+        const promises = [
+            runSlow(),
+            runSlow()
+        ]
+        await Promise.all(promises);
     })
-    test('run across multiple test 2', async () => {
-        await runSlow();
-    })
+    
 
     test(`stays alive until dispose called`, async () => {
         const runner = new DbMultipleTestsRunner('any-real');
@@ -74,5 +76,50 @@ describe('DbMultipleTestsRunner', () => {
         })
 
         expect(message).toBe('Hello world');
+    })
+
+    test('schema isolation', async () => {
+        let schema1:string;
+
+        let count:number | undefined;
+        await runner.sequentialTest(async (runner, db, schemaName) => {
+            
+            schema1 = schemaName;
+            await db.exec(`CREATE TABLE ${schemaName}.test1 (name TEXT)`);
+
+            const result = await db.query(`SELECT * FROM ${schemaName}.test1`);
+            count = result.rows.length;
+  
+        })
+        expect(count).toBe(0);
+
+        let schemaErrorCreate = false;
+        let schemaErrorSelectTest1 = false;
+        let schemaErrorSelectTest2 = false;
+        await runner.sequentialTest(async (runner, db, schemaName, schemaScope) => {
+            
+            try {
+                await db.exec(`CREATE TABLE ${schema1}.test2 (name TEXT)`);
+            } catch(e) {
+                schemaErrorCreate = true;
+            }
+
+            try {
+                const result = await db.query(`SELECT * FROM ${schemaScope('test1')}`);
+            } catch(e) {
+                schemaErrorSelectTest1 = true;
+            }
+
+            try {
+                const result = await db.query(`SELECT * FROM ${schema1}.test1`);
+            } catch(e) {
+                schemaErrorSelectTest2 = true;
+            }
+        })
+
+        expect(schemaErrorCreate).toBe(true);
+        expect(schemaErrorSelectTest1).toBe(true);
+        expect(schemaErrorSelectTest2).toBe(true);
+        
     })
 })

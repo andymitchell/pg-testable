@@ -5,8 +5,8 @@ import { PgTestableInstance, PgTestableInstanceResult, PgTransactionInstance } f
 
 export class PgTestableInstancePgMock implements PgTestableInstance {
     NAME = 'PgTestableInstancePgMock';
-    private mock:PostgresMock;
-    private db:pg.Client;
+    private mock?:PostgresMock;
+    private db?:pg.Client;
     private isTransaction:boolean;
     private isDisposed?:boolean;
     
@@ -19,7 +19,7 @@ export class PgTestableInstancePgMock implements PgTestableInstance {
     }
 
 
-    async getDb():Promise<pg.Client> {
+    async getDb():Promise<pg.Client | undefined> {
         if( !this.db ) {
             
             const st = Date.now();
@@ -46,6 +46,7 @@ export class PgTestableInstancePgMock implements PgTestableInstance {
     }
     protected async runQuery<T extends Record<string, any>>(query: string, params?: any[]): Promise<PgTestableInstanceResult<T>> {
         const db = await this.getDb();
+        if( !db ) return {rows: []};
         const st = Date.now();
         const result = await db.query(query, params);
         const dur = Date.now()-st; // First takes about 2.5 seconds. Subsequent is milliseconds.
@@ -55,6 +56,10 @@ export class PgTestableInstancePgMock implements PgTestableInstance {
     }
 
     async transaction(callback: (transaction:PgTransactionInstance) => Promise<void>) {
+        if( !this.mock ) {
+            if( !this.isDisposed ) throw new Error("Transaction called too soon");
+            return;
+        }
         const db = new pg.Client(this.mock.getNodePostgresConfig());
         db.connect();
         const transactionInstance = new PgTestableInstancePgMock({mock: this.mock, db});
@@ -77,7 +82,7 @@ export class PgTestableInstancePgMock implements PgTestableInstance {
             await this.db.end();
         }
         if( !this.isTransaction ) {
-            this.mock.destroy();
+            if( this.mock ) this.mock.destroy();
             await new Promise<void>(accept => {
                 console.log("Shutdown timer");
                 setTimeout(() => accept(), 1000*3);

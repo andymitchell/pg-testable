@@ -13,6 +13,11 @@ export interface PgTestableInstance {
     dispose():Promise<void>
     supportsRls():boolean;
 }
+export interface PgTestableVirtualInstance extends PgTestableInstance {
+    onceLoaded():Promise<void>;
+    getSchema():string;
+    schemaScope(identifier:string):string;
+}
 
 export type PgTestableOptionsPgClient = {};
 export type PgTestableOptions = PgTestableOptionsPgClient;

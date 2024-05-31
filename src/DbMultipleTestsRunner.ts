@@ -1,4 +1,5 @@
 import { PgTestable } from "./PgTestable";
+import { PgTestableVirtual } from "./PgTestableVirtual";
 import { PgTestableDbs, PgTestableInstance, PgTestableOptions, PgTestableOptionsPgClient } from "./types";
 import { QueueWorkspace } from "@andyrmitchell/utils";
 
@@ -15,35 +16,40 @@ export class DbMultipleTestsRunner {
     constructor(type:'pg-client', options:PgTestableOptionsPgClient, verbose?:boolean);
     constructor(type:PgTestableDbs, options?:PgTestableOptions, verbose?:boolean);
     constructor(type:unknown, options?:unknown, verbose?:boolean) {
-        this.db = new PgTestable(type as PgTestableDbs, options, verbose);
+        this.db = new PgTestable(type as PgTestableDbs, options as PgTestableOptions, verbose);
         this.activeTests = [];
         this.testTableNameIndex = 0;
         this.disposed = false;
         this.queue = new QueueWorkspace();
         
 
+        this.promiseDisposedTrigger = () => null;
         this.promiseDisposed = new Promise<boolean>(resolve => {
             this.promiseDisposedTrigger = () => resolve(true);
         });
     }
 
 
-    async sequentialTest<T>(callback:(runner: DbMultipleTestsRunner, db:PgTestableInstance, uniqueTableName:string) => Promise<T>, tag: string = ''):Promise<T>{
+    async sequentialTest<T>(callback:(runner: DbMultipleTestsRunner, db:PgTestableInstance, schemaName:string, schemaScope:(identifier:string) => string) => Promise<T>, tag: string = ''):Promise<T>{
         // pglite seemingly can't cope with creating and selecting multiple tables in an interleaving manner. Or possibly it just wants to run all its creates first (we could do this as a test set up).
         const release = this.lockAliveForTest();
         return this.queue.enqueue('DbMulitpleTestsRunner.test-run', async () => {
             if( this.disposed) throw new Error(`DbMulitpleTestsRunner[${tag}] Database already disposed. Create a new runner.`);
             let result:Awaited<T>;
+
+            const db = new PgTestableVirtual(this.db);
+
             try {
-                result = await callback(this, this.db, this.getUniqueTableName());
-                release();
+                result = await callback(this, db, db.getSchema(), db.schemaScope.bind(db));
                 return result;
             } catch(e) {
                 if( e instanceof Error ) {
                     console.warn("Error in DbMulitpleTestsRunner test callback "+e.message);
                 }
-                release();
                 throw e;
+            } finally {
+                db.dispose();
+                release();
             }
             
         })
