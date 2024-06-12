@@ -5,6 +5,6 @@ export default defineConfig({
   publicDir: false,
   clean: true,
   minify: false,
-  format: ['cjs','esm'], // When this changes, update 'type' in package.json 
+  format: ['esm'], // When this changes, update 'type' in package.json 
   dts: true
 });

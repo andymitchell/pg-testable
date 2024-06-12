@@ -4,11 +4,10 @@ describe('DbMultipleTestsRunner', () => {
 
     let runner:DbMultipleTestsRunner;
     
-    beforeAll((done) => {
+    beforeAll(async () => {
         runner = new DbMultipleTestsRunner({type: 'any-real'});
-        runner.sequentialTest(async (runner, db) => {
+        await runner.sequentialTest(async (runner, db) => {
             await db.query("select 'Hello world' as message;");
-            done();
         })
     });
 
