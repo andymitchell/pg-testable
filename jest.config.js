@@ -12,7 +12,7 @@ module.exports = {
       },
       transformIgnorePatterns: [
         // Don't transform node_modules except lodash-es (or any other ES modules you use)
-        '/node_modules/(?!lodash-es|dot-prop|pgmock|\@electric\-sql\/pglite/)',
+        '/node_modules/(?!lodash-es|dot-prop|pgmock|\@electric\-sql\/pglite|@andyrmitchell\/utils/)',
       ],
     
       

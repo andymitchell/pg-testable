@@ -53,7 +53,7 @@
   },
   "devDependencies": {
     "@andyrmitchell/trowser": "^0.1.25",
-    "@andyrmitchell/utils": "^0.3.4",
+    "@andyrmitchell/utils": "^0.5.1",
     "@babel/core": "^7.24.4",
     "@babel/preset-env": "^7.24.4",
     "@babel/preset-typescript": "^7.24.1",
