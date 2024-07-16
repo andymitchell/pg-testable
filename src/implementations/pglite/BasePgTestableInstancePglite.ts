@@ -54,7 +54,9 @@ export class BasePgTestableInstancePglite<T extends Record<string, any>> impleme
 
     async dispose() {
         if( this.dbPromise ) {
-            console.log(`Pglite db open for ${ft(performance.now()-this.invocation_ts)} milliseconds.\nQueries took:\n${this.queries_ts.map(x => `- ${ft(x)} milliseconds`).join(`\n`)}`);
+            if( this.verbose ) {
+                console.log(`Pglite db open for ${ft(performance.now()-this.invocation_ts)} milliseconds.\nQueries took:\n${this.queries_ts.map(x => `- ${ft(x)} milliseconds`).join(`\n`)}`);
+            }
             const db = await this.dbPromise;
             await db.close();
             this.dbPromise = undefined;
